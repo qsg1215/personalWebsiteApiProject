@@ -1,0 +1,4 @@
+
+openssl genrsa  -passout pass:123456 -out rsa_private_key.pem 2048
+
+openssl rsa -in rsa_private_key.pem -passin pass:123456  -pubout -out rsa_public_key.pem

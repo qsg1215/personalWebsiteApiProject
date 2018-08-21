@@ -1,0 +1,30 @@
+{
+  "name": "api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "aes": "^0.1.0",
+    "aes256": "^1.0.3",
+    "body-parser": "~1.18.2",
+    "cookie-parser": "~1.4.3",
+    "cors": "^2.8.4",
+    "crypto-js": "^3.1.9-1",
+    "debug": "~2.6.9",
+    "ejs": "~2.5.7",
+    "express": "~4.15.5",
+    "express-jwt": "^5.3.1",
+    "highlight": "^0.2.4",
+    "jsonwebtoken": "^8.3.0",
+    "marked": "^0.3.14",
+    "morgan": "~1.9.0",
+    "mysql": "^2.15.0",
+    "node-rsa": "^0.4.2",
+    "node-uuid": "^1.4.8",
+    "qiniu": "^7.2.1",
+    "serve-favicon": "~2.4.5",
+    "socket.io": "^2.0.4"
+  }
+}
