@@ -11,7 +11,7 @@ var classifySQL = require('../db/SQL/classifySQL');
 var commentSQL = require('../db/SQL/commentSQL');
 
 //添加文章
-router.post('/new', function(req, res, next){
+router.post('/new', function(req, res){
     var articalInfo = req.body;
     var sql = articalSQL.queryByTitle + client.escape(articalInfo.title);
     client.query(sql, function (error, results, fields) {
