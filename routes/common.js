@@ -49,4 +49,16 @@ router.all('/qiniu', function(req, res, next){
     }));
 });
 
+// 获取七牛token
+router.all('/gitHook', function(req, res, next){
+  res.send(JSON.stringify({
+    status:'200',
+    data: {
+      token:req.body
+    },
+    msg:'访问成功!'
+  }));
+});
+
+
 module.exports = router;
