@@ -9,7 +9,7 @@ var util = require('../public/lib/util');
 var commentSQL = require('../db/SQL/commentSQL');
 
 //添加文章评论
-router.post('/new', function(req, res, next){
+router.post('/new', function(req, res){
     var commentInfo = req.body;
     commentInfo.ID =  uuid.v1();
         client.query(commentSQL.insert,
