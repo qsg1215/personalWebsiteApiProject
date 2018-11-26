@@ -32,7 +32,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-/*
+
 app.use(expressJwt ({
     secret:  'miyao'
 }).unless({
@@ -49,7 +49,7 @@ app.use(function (err, req, res, next) {
         }))
     }
 });
-*/
+
 
 
 app.use('/', index);

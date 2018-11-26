@@ -88,7 +88,6 @@ router.get('/getComment/web', function(req, res, next){
                     replyID: data[i].replyID,
                     content: data[i].status ? data[i].content: '你的评论正在审核',
                     status: data[i].status,
-                    addAt: data[i].addAt,
                     children: getTree(data, data[i].ID)
                 }
                 treelist.push(newTree)
