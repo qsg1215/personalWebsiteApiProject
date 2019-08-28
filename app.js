@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 
 //引入
-var jwt= require('jsonwebtoken');
+var jwt = require('jsonwebtoken');
 var expressJwt = require('express-jwt');
 
 
@@ -17,6 +17,7 @@ var common = require('./routes/common');
 var classify = require('./routes/classify');
 var artical = require('./routes/artical');
 var comment = require('./routes/comment');
+var zhgd = require('./routes/zhgd');
 
 var app = express();
 
@@ -33,10 +34,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-app.use(expressJwt ({
-    secret:  'miyao'
+app.use(expressJwt({
+    secret: 'miyao'
 }).unless({
-    path: ['/users/login','/common/getRSA','/artical/getArtical/']  //除了这些地址，其他的URL都需要验证
+    path: ['/users/login', '/common/getRSA', '/artical/getArtical/']  //除了这些地址，其他的URL都需要验证
 }));
 
 app.use(function (err, req, res, next) {
@@ -58,25 +59,26 @@ app.use('/common', common);
 app.use('/classify', classify);
 app.use('/artical', artical);
 app.use('/comment', comment);
+app.use('/zhgd', zhgd); //获取备案列表
 app.use(cors());
 
 
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+app.use(function (req, res, next) {
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
 });
 
 // error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+app.use(function (err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
 });
 
 

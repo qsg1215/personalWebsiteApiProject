@@ -50,6 +50,7 @@ router.post('/new', function(req, res){
 });
 //查询文章列表
 router.get('/getArtical', function(req, res, next){
+    console.log(req, 'hahahhaha')
     var sql = articalSQL.queryAll;
     if ( req.query && req.query.start  &&  req.query.limit){
         //不分页的情况
