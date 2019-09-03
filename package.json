@@ -26,6 +26,6 @@
     "node-uuid": "^1.4.8",
     "qiniu": "^7.2.1",
     "serve-favicon": "~2.4.5",
-    "socket.io": "^2.0.4"
+    "ws": "^7.1.2"
   }
 }

@@ -7,7 +7,7 @@ var moment = require('moment')
 router.get('/getFilling', function (req, res, next) {
     //start limit 必传;  模糊查询 编号 准备查询状态
     let sql = `
-    select zhgd_filling.* ,zhgd_devices.deviceCode,zhgd_corporation.name,zhgd_corporation.tel,zhgd_corporation.resPerson from zhgd_filling 
+    select zhgd_filling.* ,zhgd_devices.deviceCode, zhgd_devices.type,zhgd_corporation.name,zhgd_corporation.tel,zhgd_corporation.resPerson from zhgd_filling 
     left join zhgd_devices
     on zhgd_filling.devicesId=zhgd_devices.devicesId
   
@@ -142,7 +142,7 @@ router.post('/checkFiling', function (req, res, next) {
 router.get('/register', function (req, res, next) {
     //start limit 必传;  模糊查询 编号 准备查询状态
     let sql = `
-     select zhgd_register.* ,zhgd_devices.deviceCode,zhgd_corporation.name,zhgd_corporation.tel,zhgd_corporation.resPerson from zhgd_register 
+     select zhgd_register.* ,zhgd_devices.deviceCode,zhgd_devices.type,zhgd_corporation.name,zhgd_corporation.tel,zhgd_corporation.resPerson from zhgd_register 
      left join zhgd_devices
      on zhgd_register.devicesId=zhgd_devices.devicesId
      left join zhgd_corporation_apply
@@ -266,7 +266,7 @@ router.get('/info', function (req, res, next) {
     where  isPublish = ? 
     and  isDelete = '0' 
     ${req.query.keyWords ? 'and num LIKE ?' : ''}
-    order  by createTime desc
+    order  by publishTime desc
     `
     console.log(req.query)
     //公司是有资质才能备案
@@ -306,9 +306,9 @@ router.delete('/deleteInfo', function (req, res, next) {
 
 //发布信息
 router.put('/publishInfo', function (req, res, next) {
-    let sql = `update zhgd_infoRelease set isPublish = 1  where  id = ?  `
+    let sql = `update zhgd_infoRelease set isPublish = 1 ,publishPerson = ? , publishTime = ? where  id = ?  `
     if (req.body) {
-        client.query(sql, [req.body.id], function (error, results, fields) {
+        client.query(sql, [req.body.publishPerson, moment().format('YYYY-MM-DD HH:mm:ss'), req.body.id], function (error, results, fields) {
             res.send(
                 {
                     status: '200',
@@ -345,7 +345,7 @@ router.post('/newInfo', function (req, res, next) {
                 moment().format('YYYY-MM-DD HH:mm:ss'),
                 moment().format('YYYY-MM-DD HH:mm:ss'),
                 req.body.content,
-                req.body.peojectID,
+                req.body.projects,
                 '0',
                 '0',
             ], function (error, results, fields) {
@@ -394,31 +394,35 @@ router.put('/editInfo', function (req, res, next) {
 
 });
 
-//发布消息
-router.put('/publishInfo', function (req, res, next) {
-    let sql = `
-    update  zhgd_infoRelease 
-        set isPublish = '1',
-        publishTime = ?
-        where id = ?
-    `
-    if (req.body) {
-        client.query(sql, [
-            moment().format('YYYY-MM-DD HH:mm:ss'),
-            req.body.id
-        ], function (error, results, fields) {
-            if (!error) {
-                res.send(
-                    {
-                        status: '200',
-                        msg: '发布成功!'
-                    }
-                );
-            }
-        })
-    }
+// //发布消息
+// router.put('/publishInfo', function (req, res, next) {
+//     let sql = `
+//     update  zhgd_infoRelease 
+//         set isPublish = '1',
+//         publishTime = ?,
+//         publishPerson = ?
+//         where id = ?
+//     `
+//     console.log(req.body)
+//     if (req.body) {
 
-});
+//         client.query(sql, [
+//             moment().format('YYYY-MM-DD HH:mm:ss'),
+//             req.body.publishPerson,
+//             req.body.id
+//         ], function (error, results, fields) {
+//             if (!error) {
+//                 res.send(
+//                     {
+//                         status: '200',
+//                         msg: '发布成功!'
+//                     }
+//                 );
+//             }
+//         })
+//     }
+
+// });
 
 
 
@@ -521,7 +525,6 @@ router.put('/editCompany', function (req, res, next) {
         nickName = ? ,
         address = ?,
         IDCard = ?,
-        companyType =?,
         updateTime = ?
         where id = ?
     `
@@ -533,7 +536,6 @@ router.put('/editCompany', function (req, res, next) {
             req.body.nickName,
             req.body.address,
             req.body.IDCard,
-            req.body.companyType,
             moment().format('YYYY-MM-DD HH:mm:ss'),
             req.body.id,
         ], function (error, results, fields) {
@@ -651,6 +653,171 @@ router.put('/forizeAccount', function (req, res, next) {
     }
 
 });
+
+//获取地区下面的项目
+router.get('/getprojectsByArea', function (req, res, next) {
+    let sql = `
+      select * from zhgd_area 
+    `
+    if (req.body) {
+        client.query(sql, [], function (error, results, fields) {
+            if (!error) {
+                Promise.all(
+                    results.map(item => {
+                        return new Promise(function (resolve, reject) {
+                            //  var item = JSON.parse(JSON.stringify(item))
+                            if (Object.values(item)[4]) {
+                                let searchSql = `select proejctId, proejctName from zhgd_project where id in (${Object.values(item)[4]})`;
+                                client.query(searchSql, [], function (error, res, fields) {
+                                    if (!error) {
+                                        item.projects = res;
+                                        resolve(item)
+
+                                    } {
+                                        reject(error)
+                                    }
+                                })
+                            } else {
+                                item.projects = [];
+                                resolve(item);
+                            }
+                        });
+
+                    })
+
+                ).then(function (values) {
+                    res.send(
+                        {
+                            status: '200',
+                            data: {
+                                dataList: values
+                            },
+                            msg: '操作成功!'
+                        }
+                    );
+                });
+
+
+
+            }
+        })
+    }
+
+});
+
+//获取地区
+router.get('/getAreas', function (req, res, next) {
+    let sql = `
+      select id,  areaId,name , projectids   from zhgd_area 
+    `
+    if (req.body) {
+        client.query(sql, [], function (error, results, fields) {
+            if (!error) {
+                res.send(
+                    {
+                        status: '200',
+                        data: {
+                            dataList: results
+                        },
+                        msg: '操作成功!'
+                    }
+                );
+
+
+            }
+        })
+    }
+
+});
+
+//获取地区下面的项目
+router.post('/getProjects', function (req, res, next) {
+    let ids = req.body.ids
+    let sql = `
+      select * from zhgd_project ${ids && `where id in (${ids} )`}
+`
+    if (req.body) {
+        client.query(sql, [], function (error, results, fields) {
+            if (!error) {
+                res.send(
+                    {
+                        status: '200',
+                        data: {
+                            dataList: results
+                        },
+                        msg: '操作成功!'
+                    }
+                );
+
+
+            }
+        })
+    }
+
+});
+
+// //查询项目下面的设备
+router.get('/getDevicesByProejct', function (req, res, next) {
+    let projectId = req.query.projectId
+    let sql = ` select * from zhgd_project where id = ?`
+    if (req.body) {
+        client.query(sql, [projectId], function (error, results, fields) {
+            if (!error) {
+                console.log(results[0].joinDeviceIds)
+                client.query(`select * from zhgd_devices where id in  (${results[0].joinDeviceIds})`, [projectId], function (error, devices, fields) {
+                    if (!error) {
+                        results[0].devices = devices
+                        res.send(
+                            {
+                                status: '200',
+                                data: results[0],
+                                msg: '操作成功!'
+                            }
+                        );
+
+
+                    }
+                })
+
+                // res.send(
+                //     {
+                //         status: '200',
+                //         data: {
+                //             dataList: results
+                //         },
+                //         msg: '操作成功!'
+                //     }
+                // );
+
+
+            }
+        })
+    }
+
+})
+
+// //查询项目下面的设备
+router.get('/warn', function (req, res, next) {
+    let projectId = req.query.projectId
+    client.query('select * from zhgd_warn where projectId = ?', [projectId], function (error, results, fields) {
+        res.send(
+            {
+                status: '200',
+                data: {
+                    dataList: results
+                },
+                msg: '操作成功!'
+            }
+        );
+
+    })
+
+})
+
+
+
+
+
 
 
 
