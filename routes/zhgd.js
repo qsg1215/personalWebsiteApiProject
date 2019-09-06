@@ -340,7 +340,7 @@ router.post('/newInfo', function (req, res, next) {
     client.query('select max(id) as maxID from zhgd_infoRelease', [], function (error, results, fields) {
         if (req.body) {
             client.query(sql, [
-                'info' + results[0].maxID,
+                '日建质安〔2019〕' + results[0].maxID + '号',
                 moment().format('YYYY-MM-DD HH:mm:ss'),
                 moment().format('YYYY-MM-DD HH:mm:ss'),
                 moment().format('YYYY-MM-DD HH:mm:ss'),
@@ -377,7 +377,7 @@ router.put('/editInfo', function (req, res, next) {
         client.query(sql, [
             moment().format('YYYY-MM-DD HH:mm:ss'),
             req.body.content,
-            req.body.peojectID,
+            req.body.projects,
             req.body.id
         ], function (error, results, fields) {
             console.log(error, fields)
@@ -813,6 +813,107 @@ router.get('/warn', function (req, res, next) {
     })
 
 })
+
+//查询抓拍列表
+router.get('/photo', function (req, res, next) {
+    //start limit 必传;  模糊查询 编号 准备查询状态
+    let sql = `
+      select zhgd_photo.*, zhgd_project.proejctName from zhgd_photo left join zhgd_project on zhgd_project.proejctId = zhgd_photo.proejctId
+      order  by zhgd_photo.time desc
+      `
+    client.query(sql, [req.query.proejctId], function (error, results, fields) {
+        var filterDataList = [].concat(results).splice(req.query.start, req.query.limit);
+        res.send(
+            {
+                status: '200',
+                data: {
+                    dataList: filterDataList,
+                    totalCount: results.length,
+                },
+                msg: '操作成功!'
+            }
+        );
+
+    })
+
+})
+
+
+//查询所有的项目
+router.get('/getAllProjects', function (req, res, next) {
+    //start limit 必传;  模糊查询 编号 准备查询状态
+    let sql = `
+      select * from zhgd_project
+      `
+    client.query(sql, [], function (error, results, fields) {
+        res.send(
+            {
+                status: '200',
+                data: results,
+                msg: '操作成功!'
+            }
+        );
+
+    })
+
+})
+
+
+//查询短息配置
+router.get('/msg', function (req, res, next) {
+    //start limit 必传;  模糊查询 编号 准备查询状态
+    let sql = `
+      select zhgd_msg.*, zhgd_project.proejctName from zhgd_msg left join zhgd_project on zhgd_project.proejctId = zhgd_msg.projectId
+      order  by zhgd_msg.createTime desc
+      `
+    client.query(sql, [], function (error, results, fields) {
+        var filterDataList = [].concat(results).splice(req.query.start, req.query.limit);
+        res.send(
+            {
+                status: '200',
+                data: {
+                    dataList: filterDataList,
+                    totalCount: results.length,
+                },
+                msg: '操作成功!'
+            }
+        );
+
+    })
+
+})
+
+//查询短息配置
+router.get('/getFiles', function (req, res, next) {
+    //start limit 必传;  模糊查询 编号 准备查询状态
+    let sql = `
+      select * from  zhgd_files order by uploadTime desc
+      `
+    client.query(sql, [], function (error, results, fields) {
+        var filterDataList = [].concat(results).splice(req.query.start, req.query.limit);
+        res.send(
+            {
+                status: '200',
+                data: {
+                    dataList: filterDataList,
+                    totalCount: results.length,
+                },
+                msg: '操作成功!'
+            }
+        );
+
+    })
+
+})
+
+
+
+
+
+
+
+
+
 
 
 
