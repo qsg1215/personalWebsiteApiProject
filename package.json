@@ -19,7 +19,7 @@
     "highlight": "^0.2.4",
     "jsonwebtoken": "^8.3.0",
     "marked": "^0.3.14",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "morgan": "~1.9.0",
     "mysql": "^2.15.0",
     "node-rsa": "^0.4.2",
